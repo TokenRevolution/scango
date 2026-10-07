@@ -28,12 +28,17 @@ function checkUserAccess(user: User): Result {
   };
 }
 
+function firstName(name: string) {
+  return name.trim().split(/\s+/)[0] || name;
+}
+
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
+  const [resultKey, setResultKey] = useState(0);
 
   useEffect(() => {
     if (!auth) {
@@ -43,6 +48,7 @@ function App() {
     return onAuthStateChanged(auth, (u) => {
       setUser(u);
       setResult(u ? checkUserAccess(u) : null);
+      setResultKey((k) => k + 1);
       setError('');
       setLoading(false);
     });
@@ -61,31 +67,41 @@ function App() {
   }
 
   function verifyAgain() {
-    if (user) setResult(checkUserAccess(user));
+    if (!user) return;
+    setResult(checkUserAccess(user));
+    setResultKey((k) => k + 1);
   }
 
   return (
-    <main>
-      <header>
-        <span className="logo">▦</span>
-        <div>
-          <h1>Scan n Go</h1>
-          <p>Controllo accesso scuola</p>
+    <div className="app">
+      <header className="brand">
+        <div className="brand-mark" aria-hidden="true">
+          SG
         </div>
+        <h1>
+          Scan <span>n</span> Go
+        </h1>
+        <p>Il check-in veloce dell’Istituto Boselli</p>
       </header>
 
       {!configured ? (
-        <section>
+        <section className="panel">
+          <span className="eyebrow">Setup</span>
           <h2>Configurazione necessaria</h2>
           <p>Inserisci i dati Firebase nel file .env seguendo il README.</p>
         </section>
       ) : loading ? (
-        <section>Caricamento…</section>
+        <section className="panel">
+          <div className="loading">
+            <div className="spinner" aria-hidden="true" />
+            Un attimo…
+          </div>
+        </section>
       ) : !user ? (
-        <section>
-          <span className="tag">ACCESSO SCUOLA</span>
-          <h2>Accedi con il tuo account scuola</h2>
-          <p>Usa l’email istituzionale Google per verificare se puoi entrare.</p>
+        <section className="panel">
+          <span className="eyebrow">Entra a scuola</span>
+          <h2>Ciao! Sei in lista?</h2>
+          <p>Accedi con la tua email scolastica Google e scopri subito se puoi entrare.</p>
           <button
             disabled={busy}
             onClick={() =>
@@ -99,29 +115,36 @@ function App() {
         </section>
       ) : (
         <>
-          <nav>
+          <div className="user-bar">
             <span>
-              {user.displayName}
+              <strong>{user.displayName || 'Studente'}</strong>
               <small>{user.email}</small>
             </span>
             <button className="secondary" onClick={() => void run(() => signOut(auth!))}>
               Esci
             </button>
-          </nav>
+          </div>
 
-          <section>
-            <span className="tag">ESITO ACCESSO</span>
+          <section className="panel">
+            <span className="eyebrow">Esito</span>
             {result ? (
-              <div className={result.allowed ? 'result ok' : 'result no'}>
-                <h2>{result.allowed ? 'Puoi entrare' : 'Passare in vicepresidenza'}</h2>
-                <p>{result.name}</p>
+              <div key={resultKey} className={result.allowed ? 'result ok' : 'result no'}>
+                <div className="result-icon" aria-hidden="true">
+                  {result.allowed ? 'OK' : '!'}
+                </div>
+                <h2>{result.allowed ? 'Puoi entrare!' : 'Passare in vicepresidenza'}</h2>
+                <p>
+                  {result.allowed
+                    ? `Ottimo, ${firstName(result.name)} — sei in lista.`
+                    : `${firstName(result.name)}, non risulti in lista.`}
+                </p>
                 <small>{result.email}</small>
               </div>
             ) : (
               <p>Impossibile verificare l’accesso.</p>
             )}
-            <button disabled={busy} onClick={verifyAgain}>
-              Verifica di nuovo
+            <button className="ghost" disabled={busy} onClick={verifyAgain}>
+              Controlla di nuovo
             </button>
           </section>
         </>
@@ -133,8 +156,8 @@ function App() {
         </div>
       )}
 
-      <footer>Scan n Go · Accesso con account Google</footer>
-    </main>
+      <footer className="foot">Scan n Go · account Google scuola</footer>
+    </div>
   );
 }
 
