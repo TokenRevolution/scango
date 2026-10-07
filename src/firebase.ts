@@ -1,6 +1,5 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFunctions } from 'firebase/functions';
 
 // Configurazione Web pubblica. Le variabili .env possono sovrascriverla.
 const e = import.meta.env;
@@ -16,5 +15,3 @@ export const firebaseConfig = {
 export const configured = true;
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const functions = getFunctions(app, 'europe-west1');
-// Analytics non viene avviato: non è necessario per il controllo ingressi.
