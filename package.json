@@ -1,0 +1,24 @@
+{
+  "name": "scan-n-go",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "firebase": "^12.0.0",
+    "qrcode.react": "^4.2.0",
+    "html5-qrcode": "^2.3.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "vite": "^7.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
+  }
+}
